@@ -1,0 +1,29 @@
+{
+	"name": "lab-planning-simple",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"dev": "npx tsx src/index.ts",
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/toto3529/lab-planning-simple.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "commonjs",
+	"bugs": {
+		"url": "https://github.com/toto3529/lab-planning-simple/issues"
+	},
+	"homepage": "https://github.com/toto3529/lab-planning-simple#readme",
+	"devDependencies": {
+		"@types/node": "^25.0.9",
+		"tsx": "^4.21.0",
+		"typescript": "^5.9.3"
+	}
+}
