@@ -88,6 +88,20 @@ planifyLab(inputData) → { schedule, metrics }
 En cas d’impossibilité (aucune ressource compatible, dépassement horaires,
 contrainte STAT impossible), la fonction lève une erreur explicite.
 
+### Gestion des erreurs
+
+Dans la version SIMPLE, l’algorithme adopte une stratégie "fail fast".
+
+Un appel à `planifyLab` lève une erreur explicite dans les cas suivants :
+
+- Aucun technicien compatible trouvé pour un échantillon
+- Aucun équipement compatible ou disponible
+- Dépassement des horaires de travail d’un technicien
+- Impossibilité de respecter la contrainte STAT (< 60 minutes)
+
+Ces erreurs sont considérées comme des échecs de planification valides
+et sont volontairement gérées par des exceptions.
+
 ---
 
 ## Métriques (version SIMPLE)
@@ -115,13 +129,37 @@ Des cas supplémentaires ont été ajoutés pour valider les règles métier :
 
 - Violation de la règle STAT < 1h → erreur attendue
 - Respect de la règle STAT < 1h avec un planning valide
+- Scénario complet "happy path" (version SIMPLE) :
+  - mélange de STAT / URGENT / ROUTINE
+  - parallélisme sur plusieurs ressources
+  - utilisation de techniciens spécialisés et GENERAL
+  - respect strict de la règle STAT < 60 minutes
+  - absence de conflits (technicien / équipement)
+  - calcul cohérent des métriques (totalTime, efficiency)
 
 Ces tests permettent de vérifier le comportement de l’algorithme au-delà
 des cas nominaux.
 
 ---
 
+## Runner et validation
+
+Le projet inclut un runner TypeScript dédié, exécuté via `npm run dev`.
+
+Responsabilités du runner :
+
+- Exécuter les exemples officiels fournis par l’énoncé
+- Comparer automatiquement les plannings et métriques obtenus aux résultats attendus
+- Exécuter des tests custom de validation métier
+- Vérifier les cas d’erreur attendus (throws)
+- Fournir un retour lisible en console (PASS / FAIL)
+
+La logique du runner est volontairement séparée de l’algorithme
+afin de garder `planifyLab` indépendant et facilement testable.
+
+---
+
 ## Périmètre
 
-Cette implémentation se limite volontairement aux règles explicitement définies
-dans l’énoncé de la version SIMPLE.
+Cette implémentation se limite strictement aux règles et contraintes explicitement définies
+dans l’énoncé de la version SIMPLE, sans ajout d’hypothèses ou de comportements non demandés.
