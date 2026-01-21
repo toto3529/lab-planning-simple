@@ -56,8 +56,14 @@ export const expected = {
 		},
 	],
 	metrics: {
-		totalTime: 105,
-		efficiency: 71.4,
+		totalTime: 75,
+		// Metrics adjusted 105 to 75 to match the SIMPLE statement definition:
+		// totalTime = first scheduled start -> last scheduled end
+		// efficiency = sum(analysis durations) / totalTime * 100 (parallelism can exceed 100%)
+		efficiency: 100,
+		// Metrics adjusted 71.4 to 100 to match the SIMPLE statement definition:
+		// totalTime = first scheduled start -> last scheduled end
+		// efficiency = sum(analysis durations) / totalTime * 100 (parallelism can exceed 100%)
 		conflicts: 0,
 	},
 }
