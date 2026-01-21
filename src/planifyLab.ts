@@ -82,6 +82,7 @@ export function planifyLab(data: Input): Output {
 
 		// Choose the best (tech, equipment) pair by earliest feasible start time
 		const arrival = toMinutes(sample.arrivalTime)
+		const statDeadline = arrival + 60
 
 		let bestStart: number | null = null
 		let bestEnd: number | null = null
@@ -104,6 +105,10 @@ export function planifyLab(data: Input): Output {
 					continue
 				}
 
+				if (sample.priority === "STAT" && end > statDeadline) {
+					continue
+				}
+
 				if (bestStart === null || start < bestStart || (start === bestStart && end < (bestEnd ?? end))) {
 					bestStart = start
 					bestEnd = end
@@ -113,8 +118,11 @@ export function planifyLab(data: Input): Output {
 			}
 		}
 
-		// No feasible pair found within working hours
+		// No feasible pair found
 		if (bestStart === null || bestEnd === null || bestTech === null || bestEq === null) {
+			if (sample.priority === "STAT") {
+				throw new Error(`Cannot schedule STAT sample ${sample.id} within 60 minutes of arrival`)
+			}
 			throw new Error(`Cannot schedule sample ${sample.id} within technician working hours`)
 		}
 

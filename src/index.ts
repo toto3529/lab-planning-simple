@@ -1,6 +1,8 @@
 import { planifyLab } from "./planifyLab"
 import { officialExamples } from "./examples"
 import type { Input, Metrics, Output, ScheduleEntry } from "./types"
+import * as statDeadlineThrows from "./examples/custom/stat-deadline-throws"
+import * as statDeadlineOk from "./examples/custom/stat-deadline-ok"
 
 type ExampleCase = {
 	name: string
@@ -96,18 +98,81 @@ function runExample(ex: ExampleCase): boolean {
 	return false
 }
 
+function runCustomExpectThrow(name: string, input: unknown): boolean {
+	console.log("==============================================")
+	console.log(name)
+
+	try {
+		planifyLab(input as Input)
+		console.log("❌ FAIL (expected an error, but got a schedule)")
+		return false
+	} catch {
+		console.log("✅ PASS (error thrown as expected)")
+		return true
+	}
+}
+
+function runCustomExpectOutput(name: string, input: unknown, expected: Output): boolean {
+	console.log("==============================================")
+	console.log(name)
+
+	let actual: Output
+	try {
+		actual = planifyLab(input as Input)
+	} catch (err) {
+		console.log("❌ FAIL (unexpected error):")
+		console.log(err)
+		return false
+	}
+
+	const scheduleCheck = schedulesEqual(actual.schedule, expected.schedule)
+	const metricsCheck = metricsEqual(actual.metrics, expected.metrics)
+
+	if (scheduleCheck.ok && metricsCheck.ok) {
+		console.log("✅ PASS")
+		return true
+	}
+
+	console.log("❌ FAIL")
+	if (!scheduleCheck.ok) console.log(`- ${scheduleCheck.reason}`)
+	if (!metricsCheck.ok) console.log(`- ${metricsCheck.reason}`)
+
+	return false
+}
+
 function main() {
 	let passed = 0
 
+	// --- Official examples ---
 	for (const ex of examples) {
 		const ok = runExample(ex)
 		if (ok) passed++
 	}
 
 	console.log("==============================================")
-	console.log(`Result: ${passed}/${examples.length} examples passed`)
+	console.log(`Result: ${passed}/${examples.length} official examples passed`)
 
 	if (passed !== examples.length) {
+		process.exitCode = 1
+	}
+
+	// --- Custom checks ---
+	console.log("==============================================")
+	console.log("Custom checks:")
+
+	let customPassed = 0
+	let customTotal = 0
+
+	customTotal++
+	if (runCustomExpectThrow(statDeadlineThrows.name, statDeadlineThrows.input)) customPassed++
+
+	customTotal++
+	if (runCustomExpectOutput(statDeadlineOk.name, statDeadlineOk.input, statDeadlineOk.expected as Output)) customPassed++
+
+	console.log("==============================================")
+	console.log(`Custom result: ${customPassed}/${customTotal} checks passed`)
+
+	if (customPassed !== customTotal) {
 		process.exitCode = 1
 	}
 }
